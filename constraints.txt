@@ -24,5 +24,5 @@
 # ga4gh-client==0.1.0
 # ga4gh-schemas==0.1.0
 #
-git+git://github.com/david4096/ga4gh-client.git@33_auth#egg=ga4gh_client
-git+git://github.com/ga4gh/schemas.git@master#egg=ga4gh_schemas
+git+git://github.com/david4096/schemas.git@684_desnake#egg=ga4gh_schemas
+git+git://github.com/ejacox/ga4gh-client.git@biosample-1394#egg=ga4gh_client
