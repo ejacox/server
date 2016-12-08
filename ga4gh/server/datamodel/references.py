@@ -42,7 +42,7 @@ class AbstractReferenceSet(datamodel.DatamodelObject):
         self._assemblyId = None
         self._description = None
         self._isDerived = False
-        self._ncbiTaxonId = None
+        self._species = None
         self._sourceAccessions = []
         self._sourceUri = None
 
@@ -61,12 +61,12 @@ class AbstractReferenceSet(datamodel.DatamodelObject):
         """
         self._description = description
 
-    def setNcbiTaxonId(self, ncbiTaxonId):
+    def setSpecies(self, species):
         """
-        Sets the ncbiTaxonId to the specified value. See the documentation
-        for getNcbiTaxonId for details of this field.
+        Sets the species to the specified value. It is an Onotology term
+        See the documentation for details of this field.
         """
-        self._ncbiTaxonId = ncbiTaxonId
+        self._species = species 
 
     def setIsDerived(self, isDerived):
         """
@@ -176,17 +176,17 @@ class AbstractReferenceSet(datamodel.DatamodelObject):
         """
         return self._sourceUri
 
-    def getNcbiTaxonId(self):
+    def getSpecies(self):
         """
-        Returns the NCBI Taxon ID for this reference set. This is the
-        ID from http://www.ncbi.nlm.nih.gov/taxonomy (e.g. 9606->human)
-        indicating the species which this assembly is intended to model.
+        Returns the species for this reference set. This is the
+        ontology term from www.obofoundry.org/ontology/ncbitaxon.html  
+        (e.g. NCBITaxon:9606 for human)
         Note that contained `Reference`s may specify a different
-        `ncbiTaxonId`, as assemblies may contain reference sequences
-        which do not belong to the modeled species, e.g.  EBV in a
+        species, as assemblies may contain reference sequences
+        which do not belong to the modeled species, e.g. EBV in a
         human reference genome.
         """
-        return self._ncbiTaxonId
+        return self._species
 
     def toProtocolElement(self):
         """
@@ -198,7 +198,10 @@ class AbstractReferenceSet(datamodel.DatamodelObject):
         ret.id = self.getId()
         ret.is_derived = self.getIsDerived()
         ret.md5checksum = self.getMd5Checksum()
-        ret.ncbi_taxon_id = pb.int(self.getNcbiTaxonId())
+        ret.species = None
+        if self.getSpecies():
+            species = protocol.fromJson(
+                json.dumps(self.getSpecies()), protocol.OntologyTerm)
         ret.source_accessions.extend(self.getSourceAccessions())
         ret.source_uri = pb.string(self.getSourceUri())
         ret.name = self.getLocalId()
@@ -222,7 +225,7 @@ class AbstractReference(datamodel.DatamodelObject):
         self._sourceAccessions = []
         self._isDerived = False
         self._sourceDivergence = pb.DEFAULT_INT
-        self._ncbiTaxonId = pb.DEFAULT_INT
+        self._species = None
 
     def setMd5checksum(self, md5checksum):
         """
@@ -230,12 +233,12 @@ class AbstractReference(datamodel.DatamodelObject):
         """
         self._md5checksum = md5checksum
 
-    def setNcbiTaxonId(self, ncbiTaxonId):
+    def setSpecies(self, species):
         """
-        Sets the ncbiTaxonId to the specified value. See the documentation
-        for getNcbiTaxonId for details of this field.
+        Sets the species to the specified value. See the documentation
+        for getSpecies for details of this field.
         """
-        self._ncbiTaxonId = ncbiTaxonId
+        self._species = species
 
     def setSourceAccessions(self, sourceAccessions):
         """
@@ -296,17 +299,17 @@ class AbstractReference(datamodel.DatamodelObject):
         """
         return self._sourceUri
 
-    def getNcbiTaxonId(self):
+    def getSpecies(self):
         """
-        Returns the NCBI Taxon ID for this reference. This is the
-        ID from http://www.ncbi.nlm.nih.gov/taxonomy (e.g. 9606->human)
-        indicating the species which this assembly is intended to model.
+        Returns the species for this reference set. This is the
+        ontology term from www.obofoundry.org/ontology/ncbitaxon.html  
+        (e.g. NCBITaxon:9606 for human)
         Note that contained `Reference`s may specify a different
-        `ncbiTaxonId`, as assemblies may contain reference sequences
-        which do not belong to the modeled species, e.g.  EBV in a
+        species, as assemblies may contain reference sequences
+        which do not belong to the modeled species, e.g. EBV in a
         human reference genome.
         """
-        return self._ncbiTaxonId
+        return self._species
 
     def getMd5Checksum(self):
         """
@@ -326,7 +329,10 @@ class AbstractReference(datamodel.DatamodelObject):
         reference.length = self.getLength()
         reference.md5checksum = self.getMd5Checksum()
         reference.name = self.getName()
-        reference.ncbi_taxon_id = self.getNcbiTaxonId()
+        reference.species = None
+        if self.getSpecies():
+            species = protocol.fromJson(
+                json.dumps(self.getSpecies()), protocol.OntologyTerm)
         reference.source_accessions.extend(self.getSourceAccessions())
         reference.source_divergence = pb.int(self.getSourceDivergence())
         reference.source_uri = self.getSourceUri()
@@ -370,7 +376,9 @@ class SimulatedReferenceSet(AbstractReferenceSet):
         self._description = "Simulated reference set"
         self._assemblyId = str(random.randint(0, 2**32))
         self._isDerived = bool(random.randint(0, 1))
-        self._ncbiTaxonId = random.randint(0, 2**16)
+        randomSpeciesId = "NCBITaxon:" + str(random.randint(0, 2**20))
+        self._species = protocol.OntologyTerm(randomSpeciesId, 
+                            "random", "ontology", "0")
         self._sourceAccessions = []
         for i in range(random.randint(1, 3)):
                 self._sourceAccessions.append("sim_accession_{}".format(
@@ -402,7 +410,9 @@ class SimulatedReference(AbstractReference):
         self._sourceDivergence = 0
         if self._isDerived:
             self._sourceDivergence = rng.uniform(0, 0.1)
-        self._ncbiTaxonId = random.randint(0, 2**16)
+        randomSpeciesId = "NCBITaxon:" + str(random.randint(0, 2**20))
+        self._species = protocol.OntologyTerm(randomSpeciesId, 
+                            "random", "ontology", "0")
         self._sourceAccessions = []
         for i in range(random.randint(1, 3)):
                 self._sourceAccessions.append("sim_accession_{}".format(
@@ -455,7 +465,7 @@ class HtslibReferenceSet(datamodel.PysamDatamodelMixin, AbstractReferenceSet):
         self._assemblyId = row[b'assemblyId']
         self._isDerived = bool(row[b'isDerived'])
         self._md5checksum = row[b'md5checksum']
-        self._ncbiTaxonId = row[b'ncbiTaxonId']
+        self._species = row[b'species']
         self._sourceAccessions = json.loads(row[b'sourceAccessions'])
         self._sourceUri = row[b'sourceUri']
 
@@ -490,7 +500,7 @@ class HtslibReference(datamodel.PysamDatamodelMixin, AbstractReference):
         self._length = row[b'length']
         self._isDerived = bool(row[b'isDerived'])
         self._md5checksum = row[b'md5checksum']
-        self._ncbiTaxonId = row[b'ncbiTaxonId']
+        self._species = row[b'species']
         self._sourceAccessions = json.loads(row[b'sourceAccessions'])
         self._sourceDivergence = row[b'sourceDivergence']
         self._sourceUri = row[b'sourceUri']
