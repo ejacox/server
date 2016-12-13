@@ -63,10 +63,10 @@ class AbstractReferenceSet(datamodel.DatamodelObject):
 
     def setSpecies(self, species):
         """
-        Sets the species to the specified value. It is an Onotology term
+        Sets the species to the specified value. It is an Ontology term
         See the documentation for details of this field.
         """
-        self._species = species 
+        self._species = species
 
     def setIsDerived(self, isDerived):
         """
@@ -179,7 +179,7 @@ class AbstractReferenceSet(datamodel.DatamodelObject):
     def getSpecies(self):
         """
         Returns the species for this reference set. This is the
-        ontology term from www.obofoundry.org/ontology/ncbitaxon.html  
+        ontology term from www.obofoundry.org/ontology/ncbitaxon.html
         (e.g. NCBITaxon:9606 for human)
         Note that contained `Reference`s may specify a different
         species, as assemblies may contain reference sequences
@@ -198,9 +198,9 @@ class AbstractReferenceSet(datamodel.DatamodelObject):
         ret.id = self.getId()
         ret.is_derived = self.getIsDerived()
         ret.md5checksum = self.getMd5Checksum()
-        ret.species = None
+        # ret.species = None
         if self.getSpecies():
-            species = protocol.fromJson(
+            ret.species = protocol.fromJson(
                 json.dumps(self.getSpecies()), protocol.OntologyTerm)
         ret.source_accessions.extend(self.getSourceAccessions())
         ret.source_uri = pb.string(self.getSourceUri())
@@ -302,7 +302,7 @@ class AbstractReference(datamodel.DatamodelObject):
     def getSpecies(self):
         """
         Returns the species for this reference set. This is the
-        ontology term from www.obofoundry.org/ontology/ncbitaxon.html  
+        ontology term from www.obofoundry.org/ontology/ncbitaxon.html
         (e.g. NCBITaxon:9606 for human)
         Note that contained `Reference`s may specify a different
         species, as assemblies may contain reference sequences
@@ -329,9 +329,9 @@ class AbstractReference(datamodel.DatamodelObject):
         reference.length = self.getLength()
         reference.md5checksum = self.getMd5Checksum()
         reference.name = self.getName()
-        reference.species = None
+        # reference.species = None
         if self.getSpecies():
-            species = protocol.fromJson(
+            reference.species = protocol.fromJson(
                 json.dumps(self.getSpecies()), protocol.OntologyTerm)
         reference.source_accessions.extend(self.getSourceAccessions())
         reference.source_divergence = pb.int(self.getSourceDivergence())
@@ -376,9 +376,12 @@ class SimulatedReferenceSet(AbstractReferenceSet):
         self._description = "Simulated reference set"
         self._assemblyId = str(random.randint(0, 2**32))
         self._isDerived = bool(random.randint(0, 1))
-        randomSpeciesId = "NCBITaxon:" + str(random.randint(0, 2**20))
-        self._species = protocol.OntologyTerm(randomSpeciesId, 
-                            "random", "ontology", "0")
+        term = protocol.OntologyTerm()
+        term.id = "NCBITaxon:" + str(random.randint(0, 2**20))
+        term.name = "random_species",
+        term.source_name = "fake_ontology_source"
+        term.source_version = "0"
+        self._species = term
         self._sourceAccessions = []
         for i in range(random.randint(1, 3)):
                 self._sourceAccessions.append("sim_accession_{}".format(
@@ -410,9 +413,12 @@ class SimulatedReference(AbstractReference):
         self._sourceDivergence = 0
         if self._isDerived:
             self._sourceDivergence = rng.uniform(0, 0.1)
-        randomSpeciesId = "NCBITaxon:" + str(random.randint(0, 2**20))
-        self._species = protocol.OntologyTerm(randomSpeciesId, 
-                            "random", "ontology", "0")
+        term = protocol.OntologyTerm()
+        term.id = "NCBITaxon:" + str(random.randint(0, 2**20))
+        term.name = "random_species",
+        term.source_name = "fake_ontology_source"
+        term.source_version = "0"
+        self._species = term
         self._sourceAccessions = []
         for i in range(random.randint(1, 3)):
                 self._sourceAccessions.append("sim_accession_{}".format(
