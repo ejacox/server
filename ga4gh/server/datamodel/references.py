@@ -202,10 +202,13 @@ class AbstractReferenceSet(datamodel.DatamodelObject):
         ret.md5checksum = self.getMd5Checksum()
         # ret.species = None
         if self.getSpecies():
-            ret.species = protocol.fromJson(
-                # json.dumps(self.getSpecies()),
+            term = protocol.fromJson(
                 MessageToJson(self.getSpecies()),
                 protocol.OntologyTerm)
+            ret.species.id = term.id
+            ret.species.term = term.term
+            ret.species.source_name= term.source_name
+            ret.species.source_version = term.source_version
         ret.source_accessions.extend(self.getSourceAccessions())
         ret.source_uri = pb.string(self.getSourceUri())
         ret.name = self.getLocalId()
@@ -333,18 +336,15 @@ class AbstractReference(datamodel.DatamodelObject):
         reference.length = self.getLength()
         reference.md5checksum = self.getMd5Checksum()
         reference.name = self.getName()
-        reference.species = protocol.OntologyTerm()
+        #reference.species = protocol.OntologyTerm()
         if self.getSpecies():
-            print("AAAAAAAAAAAAA")
-            print(self.getSpecies())
-            print(type(self.getSpecies()))
-            print("aaaaa")
-            # jsonObj = MessageToJson(self.getSpecies())
-            print("BBBBBBBBBB")
-            reference.species = protocol.fromJson(
-                # json.dumps(self.getSpecies()),
+            term = protocol.fromJson(
                 MessageToJson(self.getSpecies()),
                 protocol.OntologyTerm)
+            reference.species.id = term.id
+            reference.species.term = term.term
+            reference.species.source_name= term.source_name
+            reference.species.source_version = term.source_version
         reference.source_accessions.extend(self.getSourceAccessions())
         reference.source_divergence = pb.int(self.getSourceDivergence())
         reference.source_uri = self.getSourceUri()

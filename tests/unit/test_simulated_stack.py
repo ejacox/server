@@ -162,7 +162,15 @@ class TestSimulatedStack(unittest.TestCase):
         self.assertEqual(
             gaReferenceSet.md5checksum, referenceSet.getMd5Checksum())
         self.assertEqual(
-            gaReferenceSet.ncbi_taxon_id, referenceSet.getNcbiTaxonId())
+            gaReferenceSet.species.id, referenceSet.getSpecies().id)
+        self.assertEqual(
+            gaReferenceSet.species.term, referenceSet.getSpecies().term)
+        self.assertEqual(
+            gaReferenceSet.species.source_name, 
+            referenceSet.getSpecies().source_name)
+        self.assertEqual(
+            gaReferenceSet.species.source_version, 
+            referenceSet.getSpecies().source_version)
         self.assertEqual(
             gaReferenceSet.assembly_id, referenceSet.getAssemblyId())
         self.assertEqual(
@@ -193,7 +201,13 @@ class TestSimulatedStack(unittest.TestCase):
         self.assertEqual(gaReference.name, reference.getName())
         self.assertEqual(gaReference.length, reference.getLength())
         self.assertEqual(gaReference.md5checksum, reference.getMd5Checksum())
-        self.assertEqual(gaReference.ncbi_taxon_id, reference.getNcbiTaxonId())
+        self.assertEqual( gaReference.species.id, reference.getSpecies().id)
+        self.assertEqual( gaReference.species.term, reference.getSpecies().term)
+        self.assertEqual(
+            gaReference.species.source_name, reference.getSpecies().source_name)
+        self.assertEqual(
+            gaReference.species.source_version, 
+            reference.getSpecies().source_version)
         self.assertEqual(gaReference.source_uri, reference.getSourceUri())
         self.assertEqual(
             gaReference.source_accessions, reference.getSourceAccessions())
