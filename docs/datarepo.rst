@@ -136,7 +136,7 @@ Adds a reference set derived from a FASTA file to a repository. Each
 record in the FASTA file will correspond to a Reference in the new
 ReferenceSet. The input FASTA file must be compressed with ``bgzip``
 and indexed using ``samtools faidx``. Each ReferenceSet contains a
-number of metadata values (.e.g. ``ncbiTaxonId``) which can be set
+number of metadata values (.e.g. ``species``) which can be set
 using command line options.
 
 .. argparse::

@@ -18,6 +18,8 @@ import ga4gh.server.exceptions as exceptions
 
 import ga4gh.schemas.pb as pb
 
+from google.protobuf.json_format import MessageToJson
+
 
 DEFAULT_REFERENCESET_NAME = "Default"
 """
@@ -201,7 +203,9 @@ class AbstractReferenceSet(datamodel.DatamodelObject):
         # ret.species = None
         if self.getSpecies():
             ret.species = protocol.fromJson(
-                json.dumps(self.getSpecies()), protocol.OntologyTerm)
+                # json.dumps(self.getSpecies()),
+                MessageToJson(self.getSpecies()),
+                protocol.OntologyTerm)
         ret.source_accessions.extend(self.getSourceAccessions())
         ret.source_uri = pb.string(self.getSourceUri())
         ret.name = self.getLocalId()
@@ -329,10 +333,18 @@ class AbstractReference(datamodel.DatamodelObject):
         reference.length = self.getLength()
         reference.md5checksum = self.getMd5Checksum()
         reference.name = self.getName()
-        # reference.species = None
+        reference.species = protocol.OntologyTerm()
         if self.getSpecies():
+            print("AAAAAAAAAAAAA")
+            print(self.getSpecies())
+            print(type(self.getSpecies()))
+            print("aaaaa")
+            # jsonObj = MessageToJson(self.getSpecies())
+            print("BBBBBBBBBB")
             reference.species = protocol.fromJson(
-                json.dumps(self.getSpecies()), protocol.OntologyTerm)
+                # json.dumps(self.getSpecies()),
+                MessageToJson(self.getSpecies()),
+                protocol.OntologyTerm)
         reference.source_accessions.extend(self.getSourceAccessions())
         reference.source_divergence = pb.int(self.getSourceDivergence())
         reference.source_uri = self.getSourceUri()
@@ -378,7 +390,7 @@ class SimulatedReferenceSet(AbstractReferenceSet):
         self._isDerived = bool(random.randint(0, 1))
         term = protocol.OntologyTerm()
         term.id = "NCBITaxon:" + str(random.randint(0, 2**20))
-        term.name = "random_species",
+        term.term = "random_species"
         term.source_name = "fake_ontology_source"
         term.source_version = "0"
         self._species = term
@@ -415,7 +427,7 @@ class SimulatedReference(AbstractReference):
             self._sourceDivergence = rng.uniform(0, 0.1)
         term = protocol.OntologyTerm()
         term.id = "NCBITaxon:" + str(random.randint(0, 2**20))
-        term.name = "random_species",
+        term.term = "random_species"
         term.source_name = "fake_ontology_source"
         term.source_version = "0"
         self._species = term
@@ -471,7 +483,7 @@ class HtslibReferenceSet(datamodel.PysamDatamodelMixin, AbstractReferenceSet):
         self._assemblyId = row[b'assemblyId']
         self._isDerived = bool(row[b'isDerived'])
         self._md5checksum = row[b'md5checksum']
-        self._species = row[b'species']
+        self._species = json.loads(row[b'species'])
         self._sourceAccessions = json.loads(row[b'sourceAccessions'])
         self._sourceUri = row[b'sourceUri']
 
@@ -506,7 +518,7 @@ class HtslibReference(datamodel.PysamDatamodelMixin, AbstractReference):
         self._length = row[b'length']
         self._isDerived = bool(row[b'isDerived'])
         self._md5checksum = row[b'md5checksum']
-        self._species = row[b'species']
+        self._species = json.loads(row[b'species'])
         self._sourceAccessions = json.loads(row[b'sourceAccessions'])
         self._sourceDivergence = row[b'sourceDivergence']
         self._sourceUri = row[b'sourceUri']
