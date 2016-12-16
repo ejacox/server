@@ -781,7 +781,7 @@ class SqlDataRepository(AbstractDataRepository):
                 referenceSet.getId(), referenceSet.getLocalId(),
                 referenceSet.getDescription(), referenceSet.getAssemblyId(),
                 referenceSet.getIsDerived(), referenceSet.getMd5Checksum(),
-                json.dumps(referenceSet.getSpecies()),
+                json.dumps(referenceSet.getSpecies(), protocol.OntologyTerm),
                 # We store the list of sourceAccessions as a JSON string.
                 # Perhaps this should be another table?
                 json.dumps(referenceSet.getSourceAccessions()),

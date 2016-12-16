@@ -74,12 +74,13 @@ class AbstractReferenceSet(datamodel.DatamodelObject):
             parsed = protocol.fromJson(speciesJson, protocol.OntologyTerm)
         except:
             raise exceptions.InvalidJsonException(speciesJson)
+        self._species = protocol.toJsonDict(parsed)
 
-        self._species = protocol.OntologyTerm()
-        self._species.id = parsed.id
-        self._species.term = parsed.term
-        self._species.source_name = parsed.source_name
-        self._species.source_version = parsed.source_version
+        #self._species = protocol.OntologyTerm()
+        #self._species.id = parsed.id
+        #self._species.term = parsed.term
+        #self._species.source_name = parsed.source_name
+        #self._species.source_version = parsed.source_version
 
     def setIsDerived(self, isDerived):
         """
@@ -192,14 +193,18 @@ class AbstractReferenceSet(datamodel.DatamodelObject):
     def getSpecies(self):
         """
         Returns the species for this reference set. This is the
-        ontology term from www.obofoundry.org/ontology/ncbitaxon.html
-        (e.g. NCBITaxon:9606 for human)
+        ontology term with data from 
+        www.obofoundry.org/ontology/ncbitaxon.html
+        (e.g. 9606 for human)
         Note that contained `Reference`s may specify a different
         species, as assemblies may contain reference sequences
         which do not belong to the modeled species, e.g. EBV in a
         human reference genome.
         """
-        return self._species
+        if self._species is not {}:
+            return self._species
+        else:
+            return None
 
     def toProtocolElement(self):
         """
@@ -261,11 +266,7 @@ class AbstractReference(datamodel.DatamodelObject):
             parsed = protocol.fromJson(speciesJson, protocol.OntologyTerm)
         except:
             raise exceptions.InvalidJsonException(speciesJson)
-
-        self._species.id = parsed.id
-        self._species.term = parsed.term
-        self._species.source_name = parsed.source_name
-        self._species.source_version = parsed.source_version
+        self._species = protocol.toJsonDict(parsed)
 
     def setSourceAccessions(self, sourceAccessions):
         """
@@ -329,14 +330,18 @@ class AbstractReference(datamodel.DatamodelObject):
     def getSpecies(self):
         """
         Returns the species for this reference set. This is the
-        ontology term from www.obofoundry.org/ontology/ncbitaxon.html
-        (e.g. NCBITaxon:9606 for human)
+        ontology term with data from 
+        www.obofoundry.org/ontology/ncbitaxon.html
+        (e.g. 9606 for human)
         Note that contained `Reference`s may specify a different
         species, as assemblies may contain reference sequences
         which do not belong to the modeled species, e.g. EBV in a
         human reference genome.
         """
-        return self._species
+        if self._species is not {}:
+            return self._species
+        else:
+            return None
 
     def getMd5Checksum(self):
         """
@@ -408,7 +413,7 @@ class SimulatedReferenceSet(AbstractReferenceSet):
         self._assemblyId = str(random.randint(0, 2**32))
         self._isDerived = bool(random.randint(0, 1))
         self._species = protocol.OntologyTerm()
-        self._species.id = "NCBITaxon:" + str(random.randint(0, 2**20))
+        self._species.id = str(random.randint(0, 2**20))
         self._species.term = "random_species"
         self._species.source_name = "fake_ontology_source"
         self._species.source_version = "0"
@@ -444,7 +449,7 @@ class SimulatedReference(AbstractReference):
         if self._isDerived:
             self._sourceDivergence = rng.uniform(0, 0.1)
         self._species = protocol.OntologyTerm()
-        self._species.id = "NCBITaxon:" + str(random.randint(0, 2**20))
+        self._species.id = str(random.randint(0, 2**20))
         self._species.term = "random_species"
         self._species.source_name = "fake_ontology_source"
         self._species.source_version = "0"

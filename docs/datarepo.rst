@@ -152,11 +152,12 @@ using command line options.
 
     $ ga4gh_repo add-referenceset registry.db hs37d5.fa.gz \
         --description "NCBI37 assembly of the human genome" \
-        --ncbiTaxonId 9606 --name NCBI37 \
+        --species '{"id": "9606", "term": "Homo sapiens", "source_name": "NCBI", "source_version: "1.0"}' \
+        --name NCBI37 \
         --sourceUri ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/phase2_reference_assembly_sequence/hs37d5.fa.gz
 
 Adds a reference set used in the 1000 Genomes project using the name
-``NCBI37``, also setting the ``ncbiTaxonId`` to 9606 (human).
+``NCBI37``, also setting the ``species`` to 9606 (human).
 
 -------------
 add-biosample
