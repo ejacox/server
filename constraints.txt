@@ -26,3 +26,4 @@
 #
 git+git://github.com/david4096/schemas.git@684_desnake#egg=ga4gh_schemas
 git+git://github.com/ejacox/ga4gh-client.git@biosample-1394#egg=ga4gh_client
+#
