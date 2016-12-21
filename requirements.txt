@@ -14,8 +14,7 @@
 # of the respective module.
 ga4gh-client
 ga4gh-common==0.0.5
-#ga4gh-schemas
-git+git://github.com/david4096/schemas.git@612_taxon_id
+ga4gh-schemas
 
 Werkzeug==0.11.5
 MarkupSafe==0.23

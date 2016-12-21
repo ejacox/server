@@ -18,8 +18,6 @@ import ga4gh.server.exceptions as exceptions
 
 import ga4gh.schemas.pb as pb
 
-from google.protobuf.json_format import MessageToJson
-
 
 DEFAULT_REFERENCESET_NAME = "Default"
 """
@@ -75,12 +73,6 @@ class AbstractReferenceSet(datamodel.DatamodelObject):
         except:
             raise exceptions.InvalidJsonException(speciesJson)
         self._species = protocol.toJsonDict(parsed)
-
-        #self._species = protocol.OntologyTerm()
-        #self._species.id = parsed.id
-        #self._species.term = parsed.term
-        #self._species.source_name = parsed.source_name
-        #self._species.source_version = parsed.source_version
 
     def setIsDerived(self, isDerived):
         """
@@ -193,7 +185,7 @@ class AbstractReferenceSet(datamodel.DatamodelObject):
     def getSpecies(self):
         """
         Returns the species for this reference set. This is the
-        ontology term with data from 
+        ontology term with data from
         www.obofoundry.org/ontology/ncbitaxon.html
         (e.g. 9606 for human)
         Note that contained `Reference`s may specify a different
@@ -218,8 +210,7 @@ class AbstractReferenceSet(datamodel.DatamodelObject):
         ret.md5checksum = self.getMd5Checksum()
         if self.getSpecies():
             term = protocol.fromJson(
-                MessageToJson(self.getSpecies()),
-                protocol.OntologyTerm)
+                json.dumps(self.getSpecies()), protocol.OntologyTerm)
             ret.species.id = term.id
             ret.species.term = term.term
             ret.species.source_name = term.source_name
@@ -330,7 +321,7 @@ class AbstractReference(datamodel.DatamodelObject):
     def getSpecies(self):
         """
         Returns the species for this reference set. This is the
-        ontology term with data from 
+        ontology term with data from
         www.obofoundry.org/ontology/ncbitaxon.html
         (e.g. 9606 for human)
         Note that contained `Reference`s may specify a different
@@ -363,8 +354,7 @@ class AbstractReference(datamodel.DatamodelObject):
         reference.name = self.getName()
         if self.getSpecies():
             term = protocol.fromJson(
-                MessageToJson(self.getSpecies()),
-                protocol.OntologyTerm)
+                json.dumps(self.getSpecies()), protocol.OntologyTerm)
             reference.species.id = term.id
             reference.species.term = term.term
             reference.species.source_name = term.source_name
@@ -412,11 +402,9 @@ class SimulatedReferenceSet(AbstractReferenceSet):
         self._description = "Simulated reference set"
         self._assemblyId = str(random.randint(0, 2**32))
         self._isDerived = bool(random.randint(0, 1))
-        self._species = protocol.OntologyTerm()
-        self._species.id = str(random.randint(0, 2**20))
-        self._species.term = "random_species"
-        self._species.source_name = "fake_ontology_source"
-        self._species.source_version = "0"
+        self._species = json.loads(
+                    '{"sourceName": "NCBI", "sourceVersion": "",'
+                    + '"term": "Homo sapiens", "id": "9606"}')
         self._sourceAccessions = []
         for i in range(random.randint(1, 3)):
                 self._sourceAccessions.append("sim_accession_{}".format(
@@ -448,11 +436,9 @@ class SimulatedReference(AbstractReference):
         self._sourceDivergence = 0
         if self._isDerived:
             self._sourceDivergence = rng.uniform(0, 0.1)
-        self._species = protocol.OntologyTerm()
-        self._species.id = str(random.randint(0, 2**20))
-        self._species.term = "random_species"
-        self._species.source_name = "fake_ontology_source"
-        self._species.source_version = "0"
+        self._species = json.loads(
+                            '{"sourceName": "NCBI", "sourceVersion": "",'
+                            + '"term": "Homo sapiens", "id": "9606"}')
         self._sourceAccessions = []
         for i in range(random.randint(1, 3)):
                 self._sourceAccessions.append("sim_accession_{}".format(

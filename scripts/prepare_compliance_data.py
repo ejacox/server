@@ -125,12 +125,16 @@ class ComplianceDataMunger(object):
         referenceSet.populateFromFile(os.path.abspath(fastaFilePath))
         referenceSet.setAssemblyId(refSetMetadata['assemblyId'])
         referenceSet.setDescription(refSetMetadata['description'])
-        referenceSet.setSpecies(refSetMetadata['species'])
+        if refSetMetadata['species']:
+            speciesJson = json.dumps(refSetMetadata['species'])
+            referenceSet.setSpeciesFromJson(speciesJson)  # needs a string
         referenceSet.setIsDerived(refSetMetadata['isDerived'])
         referenceSet.setSourceUri(refSetMetadata['sourceUri'])
         referenceSet.setSourceAccessions(refSetMetadata['sourceAccessions'])
         for reference in referenceSet.getReferences():
-            reference.setSpecies(refMetadata['species'])
+            if refSetMetadata['species']:
+                speciesJsonStr = json.dumps(refMetadata['species'])
+                reference.setSpeciesFromJson(speciesJsonStr)
             reference.setSourceAccessions(
                 refMetadata['sourceAccessions'])
         self.repo.insertReferenceSet(referenceSet)
