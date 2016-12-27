@@ -820,7 +820,7 @@ class SqlDataRepository(AbstractDataRepository):
         Inserts the specified dataset into this repository.
         """
         sql = """
-            INSERT INTO Dataset (id, name, description, info, createDateTime, 
+            INSERT INTO Dataset (id, name, description, info, createDateTime,
                 updateDateTime)
             VALUES (?, ?, ?, ?, ?, ?);
         """

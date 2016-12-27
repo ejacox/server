@@ -17,9 +17,8 @@ import ga4gh.server.datamodel.bio_metadata as biodata
 import ga4gh.server.datamodel.genotype_phenotype as g2p
 import ga4gh.server.datamodel.rna_quantification as rnaQuantification
 import json
-
 import google.protobuf.struct_pb2 as struct_pb2
-
+import dateutil.parser as datetimeParser
 import ga4gh.schemas.pb as pb
 
 
@@ -79,29 +78,42 @@ class Dataset(datamodel.DatamodelObject):
         Sets the description for this dataset to the specified value.
         """
         self._description = description
-        
-    def setCreateDateTime(self, dateTime):
+
+    def setCreateDateTime(self, datetimeStr):
         """
         Sets the creation DateTime for this dataset to the specified value.
-        """
-        try:
-            datetime = dateutil.parser.parse(datetime)
-        except ValueError, OverflowError:
-            raise exceptions.TimestampFormatExeption(
-                    datetime, self.getLocalId())
-        self._createDateTime = datetime.isoformat()
 
-    def setUpdateDateTime(self, dateTime):
+        The datetime parser accepts a wide variety of time formats, which
+        are converted to ISO format.
+        """
+        if datetimeStr:
+            try:
+                datetimeObj = datetimeParser.parse(datetimeStr)
+            except ValueError:
+                raise exceptions.TimestampFormatException(
+                        datetimeStr, self.getLocalId())
+            except OverflowError:
+                raise exceptions.TimestampFormatException(
+                        datetimeStr, self.getLocalId())
+            self._createDateTime = datetimeObj.isoformat()
+
+    def setUpdateDateTime(self, datetimeStr):
         """
         Sets the update DateTime for this dataset to the specified value.
-        """
-        try:
-            datetime = dateutil.parser.parse(datetime)
-        except ValueError, OverflowError:
-            raise exceptions.TimestampFormatExeption(
-                    datetime, self.getLocalId())
-        self._updateDateTime = updateDateTime 
 
+        The datetime parser accepts a wide variety of time formats, which
+        are converted to ISO format.
+        """
+        if datetimeStr:
+            try:
+                datetimeObj = datetimeParser.parse(datetimeStr)
+            except ValueError:
+                raise exceptions.TimestampFormatException(
+                        datetimeStr, self.getLocalId())
+            except OverflowError:
+                raise exceptions.TimestampFormatException(
+                        datetimeStr, self.getLocalId())
+            self._updateDateTime = datetimeObj.isoformat()
 
     def setInfo(self, info):
         """
@@ -465,8 +477,7 @@ class SimulatedDataset(Dataset):
             numExpressionLevels=2):
         super(SimulatedDataset, self).__init__(localId)
         self._description = "Simulated dataset {}".format(localId)
-        self._createDateTime = datetime(2015, 1, 1).isoformat()
-        self._createDateTime = datetime.utcnow().isoformat()
+        self.setCreateDateTime(datetime(2015, 1, 1).isoformat())
 
         for i in range(numPhenotypeAssociationSets):
             localId = "simPas{}".format(i)
