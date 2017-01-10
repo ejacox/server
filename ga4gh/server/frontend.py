@@ -694,6 +694,12 @@ def searchFeatures():
     return handleFlaskPostRequest(
         flask.request, app.backend.runSearchFeatures)
 
+@DisplayedRoute('/continuous/search', postMethod=True)
+@requires_auth
+def searchContinuous():
+    return handleFlaskPostRequest(
+        flask.request, app.backend.runSearchContinuous)
+
 
 @DisplayedRoute('/biosamples/search', postMethod=True)
 @requires_auth

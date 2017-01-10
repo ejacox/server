@@ -929,6 +929,19 @@ class Backend(object):
             protocol.SearchFeaturesResponse,
             self.featuresGenerator)
 
+    def runSearchContinuous(self, request):
+        """
+        Returns a SearchContinuousResponse for the specified
+        SearchContinuousRequest object.
+
+        :param request: JSON string representing searchContinuousRequest
+        :return: JSON string representing searchContinuousesponse
+        """
+        return self.runSearchRequest(
+            request, protocol.SearchContinuousRequest,
+            protocol.SearchContinuousResponse,
+            self.featuresGenerator)
+
     def runSearchGenotypePhenotypes(self, request):
         return self.runSearchRequest(
             request, protocol.SearchGenotypePhenotypeRequest,
