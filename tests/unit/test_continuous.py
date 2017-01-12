@@ -6,14 +6,12 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import hashlib
 import unittest
 
 from nose.tools import raises
 
-import ga4gh.server.protocol as protocol
 import ga4gh.server.datarepo as datarepo
-import ga4gh.server.datamodel.continuous as continuous 
+import ga4gh.server.datamodel.continuous as continuous
 import ga4gh.server.datamodel.datasets as datasets
 import ga4gh.server.exceptions as exceptions
 
@@ -41,30 +39,31 @@ class TestContinuous(unittest.TestCase):
         self._bigWigFile = dataDir + "/bigwig_1.bw"
 
     def testReadWiggle(self):
-        continuousObj = continuous.WiggleDataSource('chr19', 49307698, 49308020)
+        continuousObj = continuous.WiggleReader(
+                            'chr19', 49307698, 49308020)
         obj = continuousObj.wiggleFileToProtocol(self._wiggleFile)
         self.assertEqual(obj.start, 49307700)
-        self.assertEqual(obj.values[0],900)
-        self.assertEqual(obj.values[300],800)
-        self.assertEqual(len(obj.values),302)
+        self.assertEqual(obj.values[0], 900)
+        self.assertEqual(obj.values[300], 800)
+        self.assertEqual(len(obj.values), 302)
 
     def testReadBigWig(self):
         continuousObj = continuous.BigWigDataSource(self._bigWigFile)
         obj = continuousObj.bigWigToProtocol("chr19", 49305897, 49306090)
         self.assertEqual(obj.start, 49305900)
-        self.assertEqual(obj.values[0],20.0)
-        self.assertEqual(obj.values[183],17.5)
-        self.assertEqual(len(obj.values),185)
+        self.assertEqual(obj.values[0], 20.0)
+        self.assertEqual(obj.values[183], 17.5)
+        self.assertEqual(len(obj.values), 185)
 
     def testReadBigWigAllNan(self):
         continuousObj = continuous.BigWigDataSource(self._bigWigFile)
         obj = continuousObj.bigWigToProtocol("chr19", 49305927, 49305997)
-        self.assertEqual(len(obj.values),0)
+        self.assertEqual(len(obj.values), 0)
 
     @raises(exceptions.ReferenceRangeErrorException)
     def testReadBigWigOutsideRange(self):
         continuousObj = continuous.BigWigDataSource(self._bigWigFile)
-        obj = continuousObj.bigWigToProtocol("chr19", 493059030, 493059034)
+        continuousObj.bigWigToProtocol("chr19", 493059030, 493059034)
 
     @raises(exceptions.ReferenceNameNotFoundException)
     def testReadBigWigChromsomeException(self):
@@ -73,4 +72,3 @@ class TestContinuous(unittest.TestCase):
         """
         continuousObj = continuous.BigWigDataSource(self._bigWigFile)
         continuousObj.bigWigToProtocol("chr&19", 49305602, 49308000)
-

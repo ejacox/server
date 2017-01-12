@@ -148,6 +148,25 @@ class Featureset(BaseModel):
             (('datasetid', 'name'), True),
         )
 
+class ContinuousSet(BaseModel):
+    dataurl = pw.TextField(db_column='dataUrl')
+    datasetid = pw.ForeignKeyField(
+        db_column='datasetId', rel_model=Dataset, to_field='id')
+    id = pw.TextField(primary_key=True)
+    info = pw.TextField(null=True)
+    name = pw.TextField()
+    ontologyid = pw.ForeignKeyField(
+        db_column='ontologyId', rel_model=Ontology, to_field='id')
+    referencesetid = pw.ForeignKeyField(
+        db_column='referenceSetId', rel_model=Referenceset, to_field='id')
+    sourceuri = pw.TextField(
+        db_column='sourceUri', null=True)
+
+    class Meta:
+        db_table = 'ContinuousSet'
+        indexes = (
+            (('datasetid', 'name'), True),
+        )
 
 class Individual(BaseModel):
     created = pw.TextField()
