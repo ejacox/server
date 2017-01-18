@@ -117,7 +117,7 @@ class TestSimulatedVariantSet(unittest.TestCase):
         for variantList in (variantListOne, variantListTwo):
             for variant in variantList:
                 for field in timeDependentFields:
-                    setattr(variant, field, 0)
+                    setattr(variant, field, "")
         self.assertEqual(variantListOne, variantListTwo)
 
 

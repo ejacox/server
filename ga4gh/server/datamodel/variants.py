@@ -325,9 +325,10 @@ class SimulatedVariantSet(AbstractVariantSet):
                 callSet._info["key_{}".format(j)] = "value_{}".format(j)
         self._variantDensity = variantDensity
         self._metadata = self._createMetaData()
-        now = protocol.convertDatetime(datetime.datetime.now())
-        self._creationTime = now
-        self._updatedTime = now
+        datetimeNow = datetime.datetime.now()
+        iso8601 = datetimeNow.strftime("%Y-%m-%dT%H:%M:%SZ")
+        self._creationTime = iso8601
+        self._updatedTime = iso8601
 
     def _createMetaData(self):
         metadata_1 = protocol.VariantSetMetadata()

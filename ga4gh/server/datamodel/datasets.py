@@ -5,6 +5,9 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+from datetime import datetime
+import dateutil.parser as datetimeParser
+
 import ga4gh.server.datamodel as datamodel
 import ga4gh.server.datamodel.reads as reads
 import ga4gh.server.datamodel.sequence_annotations as sequence_annotations
@@ -59,6 +62,8 @@ class Dataset(datamodel.DatamodelObject):
         self._rnaQuantificationSetIdMap = {}
         self._rnaQuantificationSetNameMap = {}
         self._info = {}
+        self._created = None
+        self._updated = None
 
     def populateFromRow(self, row):
         """
@@ -67,12 +72,50 @@ class Dataset(datamodel.DatamodelObject):
         """
         self._description = row[b'description']
         self._info = json.loads(row[b'info'])
+        self._created = row[b'created']
+        self._updated = row[b'updated']
 
     def setDescription(self, description):
         """
         Sets the description for this dataset to the specified value.
         """
         self._description = description
+
+    def setCreated(self, datetimeStr):
+        """
+        Sets the created DateTime for this dataset to the specified value.
+
+        The datetime parser accepts a wide variety of time formats, which
+        are converted to ISO format.
+        """
+        if datetimeStr:
+            try:
+                datetimeObj = datetimeParser.parse(datetimeStr)
+            except ValueError:
+                raise exceptions.TimestampFormatException(
+                                    datetimeStr, self.getLocalId())
+            except OverflowError:
+                raise exceptions.TimestampFormatException(
+                                    datetimeStr, self.getLocalId())
+            self._created = datetimeObj.isoformat()
+
+    def setUpdated(self, datetimeStr):
+        """
+        Sets the updated DateTime for this dataset to the specified value.
+
+        The datetime parser accepts a wide variety of time formats, which
+        are converted to ISO format.
+        """
+        if datetimeStr:
+            try:
+                datetimeObj = datetimeParser.parse(datetimeStr)
+            except ValueError:
+                raise exceptions.TimestampFormatException(
+                                        datetimeStr, self.getLocalId())
+            except OverflowError:
+                raise exceptions.TimestampFormatException(
+                                        datetimeStr, self.getLocalId())
+            self._updated = datetimeObj.isoformat()
 
     def setInfo(self, info):
         """
@@ -143,6 +186,8 @@ class Dataset(datamodel.DatamodelObject):
         dataset.description = pb.string(self.getDescription())
         for key in self.getInfo():
             dataset.info[key].values.extend(_encodeValue(self._info[key]))
+        dataset.created = pb.string(self.getCreated())
+        dataset.updated = pb.string(self.getUpdated())
         return dataset
 
     def getVariantSets(self):
@@ -369,6 +414,18 @@ class Dataset(datamodel.DatamodelObject):
         """
         return self._description
 
+    def getCreated(self):
+        """
+        Returns the free text created DateTime of this dataset.
+        """
+        return self._created
+
+    def getUpdated(self):
+        """
+        Returns the free text updated DateTime of this dataset.
+        """
+        return self._updated
+
     def getNumRnaQuantificationSets(self):
         """
         Returns the number of rna quantification sets in this dataset.
@@ -422,6 +479,7 @@ class SimulatedDataset(Dataset):
             numExpressionLevels=2):
         super(SimulatedDataset, self).__init__(localId)
         self._description = "Simulated dataset {}".format(localId)
+        self.setCreated(datetime(2015, 1, 1).isoformat())
 
         for i in range(numPhenotypeAssociationSets):
             localId = "simPas{}".format(i)

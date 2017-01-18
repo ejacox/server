@@ -157,6 +157,8 @@ class RepoManager(object):
         dataset = datasets.Dataset(self._args.datasetName)
         dataset.setDescription(self._args.description)
         dataset.setInfo(json.loads(self._args.info))
+        dataset.setCreated(self._args.created)
+        dataset.setUpdated(self._args.updated)
         self._updateRepo(self._repo.insertDataset, dataset)
 
     def addReferenceSet(self):
@@ -586,6 +588,18 @@ class RepoManager(object):
             "datasetName", help="the name of the dataset")
 
     @classmethod
+    def addDatasetCreatedArgument(cls, subparser):
+        subparser.add_argument(
+            "-c", "--created", default=None,
+            help="the datetime when the dataset was created")
+
+    @classmethod
+    def addDatasetUpdatedArgument(cls, subparser):
+        subparser.add_argument(
+            "-u", "--updated", default=None,
+            help="the datetime when the dataset was updated")
+
+    @classmethod
     def addDatasetInfoArgument(cls, subparser):
         subparser.add_argument(
             "-i", "--info", default="{}", help="the info of the dataset")
@@ -742,6 +756,8 @@ class RepoManager(object):
         cls.addRepoArgument(addDatasetParser)
         cls.addDatasetNameArgument(addDatasetParser)
         cls.addDatasetInfoArgument(addDatasetParser)
+        cls.addDatasetCreatedArgument(addDatasetParser)
+        cls.addDatasetUpdatedArgument(addDatasetParser)
         cls.addDescriptionOption(addDatasetParser, "dataset")
 
         removeDatasetParser = common_cli.addSubparser(

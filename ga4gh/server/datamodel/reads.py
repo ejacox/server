@@ -482,10 +482,9 @@ class AbstractReadGroup(datamodel.DatamodelObject):
     def __init__(self, parentContainer, localId):
         super(AbstractReadGroup, self).__init__(parentContainer, localId)
         datetimeNow = datetime.datetime.now()
-        now = protocol.convertDatetime(datetimeNow)
         self._iso8601 = datetimeNow.strftime("%Y-%m-%dT%H:%M:%SZ")
-        self._creationTime = now
-        self._updateTime = now
+        self._creationTime = self._iso8601
+        self._updateTime = self._iso8601
         self._biosampleId = None
 
     def toProtocolElement(self):
@@ -536,8 +535,8 @@ class AbstractReadGroup(datamodel.DatamodelObject):
         experiment.description = pb.string(self.getExperimentDescription())
         experiment.library = pb.string(self.getLibrary())
         experiment.platform_unit = pb.string(self.getPlatformUnit())
-        experiment.message_create_time = self._iso8601
-        experiment.message_update_time = self._iso8601
+        experiment.created = self._iso8601
+        experiment.updated = self._iso8601
         experiment.run_time = pb.string(self.getRunTime())
         return experiment
 

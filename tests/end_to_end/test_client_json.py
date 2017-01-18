@@ -126,10 +126,10 @@ class TestClientJson(TestClientOutput):
     def _scrubReadGroup(self, cliReadGroup, clientReadGroup):
         cliReadGroup['created'] = clientReadGroup['created']
         cliReadGroup['updated'] = clientReadGroup['updated']
-        cliReadGroup['experiment']['messageUpdateTime'] = \
-            clientReadGroup['experiment']['messageUpdateTime']
-        cliReadGroup['experiment']['messageCreateTime'] = \
-            clientReadGroup['experiment']['messageCreateTime']
+        cliReadGroup['experiment']['updated'] = \
+            clientReadGroup['experiment']['updated']
+        cliReadGroup['experiment']['created'] = \
+            clientReadGroup['experiment']['created']
 
     def scrubReadGroup(self, cliOutput, clientOutput):
         for cliReadGroup, clientReadGroup in utils.zipLists(
