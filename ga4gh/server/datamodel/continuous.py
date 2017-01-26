@@ -10,16 +10,6 @@ import random
 import re
 import math
 
-# bx-python: bigwig reader missing from pypi version
-# bx-python==0.7.3
-# from bx.arrays.array_tree import *
-# import bx.wiggle
-# import bx.bbi.bigwig_file
-
-# not being maintained; difficult to install (.so path problem, currently)
-# ngslib==1.1.0
-# from ngslib import BigWigFile
-
 # no step/span; requires numpy
 import pyBigWig
 
@@ -40,6 +30,13 @@ calculations (e.g. conservation scores). It can be used, for example,
 to share data stored in Wiggle, BigWig, and BedGraph formats.
 
 Assumes 0-based for everything (wiggle is 1-based).
+
+The pyBiWig package is used to read the bigwig file it doesn't return step
+and span, though. Other packages were 
+considered. The bx-python package is missing the bigwig reader in the 
+pypi verions. The ngslib package is not being maintained is difficult
+to install.
+
 """
 
 
@@ -223,13 +220,14 @@ class BigWigDataSource:
         if not self.checkReference(reference):
             raise exceptions.ReferenceNameNotFoundException(reference)
         if start < 0:
-            raise exceptions.ReferenceRangeErrorException(
-                reference, start, end)
+            start = 0
         bw = pyBigWig.open(self._sourceFile)
         referenceLen = bw.chroms(reference)
         if referenceLen is None:
             raise exceptions.ReferenceNameNotFoundException(reference)
-        if start > referenceLen or end > referenceLen:
+        if end > referenceLen:
+            end = referenceLen
+        if start >= end:
             raise exceptions.ReferenceRangeErrorException(
                 reference, start, end)
 

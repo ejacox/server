@@ -61,9 +61,19 @@ class TestContinuous(unittest.TestCase):
         self.assertEqual(len(obj.values), 0)
 
     @raises(exceptions.ReferenceRangeErrorException)
-    def testReadBigWigOutsideRange(self):
+    def testReadBigWigInvalidRange(self):
         continuousObj = continuous.BigWigDataSource(self._bigWigFile)
-        continuousObj.bigWigToProtocol("chr19", 493059030, 493059034)
+        continuousObj.bigWigToProtocol("chr19", 493059030, 49305934)
+        
+    def testReadBigWigOutsideReferenceRange(self):
+        continuousObj = continuous.BigWigDataSource(self._bigWigFile)
+        obj = continuousObj.bigWigToProtocol("chr19", 49306897, 493059304)
+        self.assertEqual(len(obj.values), 5)
+
+    def testReadBigWigNegativeReferenceRange(self):
+        continuousObj = continuous.BigWigDataSource(self._bigWigFile)
+        obj = continuousObj.bigWigToProtocol("chr19", -1, 5)
+        self.assertEqual(len(obj.values), 0)
 
     @raises(exceptions.ReferenceNameNotFoundException)
     def testReadBigWigChromsomeException(self):
