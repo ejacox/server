@@ -71,7 +71,7 @@ def buildTestData(
         prefix, "datasets/dataset1/continuous", "*.bw")
     for dataFile in glob.glob(pattern):
         run("add-continuousset", repoFile, datasetName, useRelativePath,
-            dataFile, "-R NCBI37", "-O", sequenceOntologyName,
+            dataFile, "-R NCBI37",
             "-C ga4gh.datamodel.continuous.FileContinuousSet")
 
     pattern = os.path.join(prefix, "datasets/dataset1/phenotypes", "*")

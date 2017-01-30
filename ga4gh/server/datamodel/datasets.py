@@ -8,6 +8,7 @@ from __future__ import unicode_literals
 import ga4gh.server.datamodel as datamodel
 import ga4gh.server.datamodel.reads as reads
 import ga4gh.server.datamodel.sequence_annotations as sequence_annotations
+import ga4gh.server.datamodel.continuous as continuous
 import ga4gh.server.datamodel.variants as variants
 import ga4gh.server.exceptions as exceptions
 import ga4gh.server.datamodel.bio_metadata as biodata
@@ -449,7 +450,8 @@ class SimulatedDataset(Dataset):
             self, localId, referenceSet, randomSeed=0,
             numVariantSets=1, numCalls=1, variantDensity=0.5,
             numReadGroupSets=1, numReadGroupsPerReadGroupSet=1,
-            numAlignments=1, numFeatureSets=1, numPhenotypeAssociationSets=1,
+            numAlignments=1, numFeatureSets=1, numContinuousSets=1,
+            numPhenotypeAssociationSets=1,
             numPhenotypeAssociations=2, numRnaQuantSets=2,
             numExpressionLevels=2):
         super(SimulatedDataset, self).__init__(localId)
@@ -512,6 +514,14 @@ class SimulatedDataset(Dataset):
                 self, localId, seed)
             featureSet.setReferenceSet(referenceSet)
             self.addFeatureSet(featureSet)
+        # Continuous
+        for i in range(numContinuousSets):
+            localId = "simConts{}".format(i)
+            seed = randomSeed + i
+            continuousSet = continuous.SimulatedContinuousSet(
+                self, localId, seed)
+            continuousSet.setReferenceSet(referenceSet)
+            self.addContinuousSet(continuousSet)
         # RnaQuantificationSets
         for i in range(numRnaQuantSets):
             localId = 'simRqs{}'.format(i)

@@ -32,8 +32,8 @@ to share data stored in Wiggle, BigWig, and BedGraph formats.
 Assumes 0-based for everything (wiggle is 1-based).
 
 The pyBiWig package is used to read the bigwig file it doesn't return step
-and span, though. Other packages were 
-considered. The bx-python package is missing the bigwig reader in the 
+and span, though. Other packages were
+considered. The bx-python package is missing the bigwig reader in the
 pypi verions. The ngslib package is not being maintained is difficult
 to install.
 

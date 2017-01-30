@@ -446,13 +446,6 @@ class RepoManager(object):
                 "A reference set name must be provided")
         referenceSet = self._repo.getReferenceSetByName(referenceSetName)
         continuousSet.setReferenceSet(referenceSet)
-        ontologyName = self._args.ontologyName
-        if ontologyName is None:
-            raise exceptions.RepoManagerException(
-                "A sequence ontology name must be provided")
-        ontology = self._repo.getOntologyByName(ontologyName)
-        self._checkSequenceOntology(ontology)
-        continuousSet.setOntology(ontology)
         continuousSet.populateFromFile(filePath)
         self._updateRepo(self._repo.insertContinuousSet, continuousSet)
 
@@ -981,8 +974,6 @@ class RepoManager(object):
             addContinuousSetParser,
             "The path to the file contianing the continuous data ")
         cls.addReferenceSetNameOption(addContinuousSetParser, "continuous set")
-        cls.addSequenceOntologyNameOption(
-            addContinuousSetParser, "continuous set")
         cls.addClassNameOption(addContinuousSetParser, "continuous set")
 
         removeContinuousSetParser = common_cli.addSubparser(

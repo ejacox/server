@@ -246,7 +246,6 @@ class AbstractDataRepository(object):
                 print(
                     "\t", continuousSet.getLocalId(),
                     continuousSet.getReferenceSet().getLocalId(),
-                    continuousSet.getOntology().getName(),
                     continuousSet.getId(),
                     sep="\t")
             print("\tPhenotypeAssociationSets:")
@@ -571,19 +570,8 @@ class SqlDataRepository(AbstractDataRepository):
                         reference.getLocalId(), 0, length, None, 3)
                     for feature in features:
                         print("\t{}".format(feature))
-            for continuousSet in dataset.getContinuousSets():
-                for referenceSet in self.getReferenceSets():
-                    # TODO cycle through references?
-                    reference = referenceSet.getReferences()[0]
-                    print(
-                        "\tVerifying ContinuousSet",
-                        continuousSet.getLocalId(),
-                        "with reference", reference.getLocalId())
-                    length = min(reference.getLength(), 1000)
-                    features = continuousSet.getFeatures(
-                        reference.getLocalId(), 0, length, None, 3)
-                    for feature in features:
-                        print("\t{}".format(feature))
+            # for continuousSet in dataset.getContinuousSets():
+            # -- there is no getContinuous
             for readGroupSet in dataset.getReadGroupSets():
                 print(
                     "\tVerifying ReadGroupSet", readGroupSet.getLocalId(),

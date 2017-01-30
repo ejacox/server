@@ -64,7 +64,7 @@ class TestContinuous(unittest.TestCase):
     def testReadBigWigInvalidRange(self):
         continuousObj = continuous.BigWigDataSource(self._bigWigFile)
         continuousObj.bigWigToProtocol("chr19", 493059030, 49305934)
-        
+
     def testReadBigWigOutsideReferenceRange(self):
         continuousObj = continuous.BigWigDataSource(self._bigWigFile)
         obj = continuousObj.bigWigToProtocol("chr19", 49306897, 493059304)
