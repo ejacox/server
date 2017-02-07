@@ -1086,7 +1086,7 @@ class SqlDataRepository(AbstractDataRepository):
             assert featureSet.getId() == featureSetRecord.id
             dataset.addFeatureSet(featureSet)
 
-    def _createContinuousSetTable(self, cursor):
+    def _createContinuousSetTable(self):
         self.database.create_table(m.ContinuousSet)
 
     def insertContinuousSet(self, continuousSet):
@@ -1106,7 +1106,7 @@ class SqlDataRepository(AbstractDataRepository):
         except Exception as e:
             raise exceptions.RepoManagerException(e)
 
-    def _readContinuousSetTable(self, cursor):
+    def _readContinuousSetTable(self):
         for continuousSetRecord in m.ContinuousSet.select():
             dataset = self.getDataset(continuousSetRecord.datasetid.id)
             continuousSet = continuous.FileContinuousSet(
