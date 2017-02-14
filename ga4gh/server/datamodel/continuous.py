@@ -16,10 +16,10 @@ import pyBigWig
 # for running bigwig tool externally
 import subprocess
 
-import ga4gh.server.protocol as protocol
 import ga4gh.server.datamodel as datamodel
 import ga4gh.server.exceptions as exceptions
 import ga4gh.schemas.pb as pb
+import ga4gh.schemas.protocol as protocol
 
 
 """
@@ -308,7 +308,6 @@ class AbstractContinuousSet(datamodel.DatamodelObject):
         self._name = localId
         self._sourceUri = ""
         self._referenceSet = None
-        self._info = {}
 
     def getReferenceSet(self):
         """
@@ -335,8 +334,10 @@ class AbstractContinuousSet(datamodel.DatamodelObject):
                                             self._referenceSet.getId())
         gaContinuousSet.name = self._name
         gaContinuousSet.source_uri = self._sourceUri
-        for key in self._info:
-            gaContinuousSet.info[key].values.extend(self._info[key])
+        attributes = self.getAttributes()
+        for key in attributes:
+            gaContinuousSet.attributes.attr[key] \
+                .values.extend(protocol.encodeValue(attributes[key]))
         return gaContinuousSet
 
 
@@ -346,22 +347,7 @@ class FileContinuousSet(AbstractContinuousSet):
     """
     def __init__(self, parentContainer, localId):
         super(FileContinuousSet, self).__init__(parentContainer, localId)
-        self._ontology = None
         self._filePath = None
-
-    def setOntology(self, ontology):
-        """
-        Sets the Ontology instance used by this ContinuousSet to the
-        specified value.
-        """
-        self._ontology = ontology
-
-    def getOntology(self):
-        """
-        Returns the ontology term map used to translate ontology term names
-        to IDs.
-        """
-        return self._ontology
 
     def populateFromFile(self, dataUrl):
         """
@@ -370,12 +356,13 @@ class FileContinuousSet(AbstractContinuousSet):
         """
         self._filePath = dataUrl
 
-    def populateFromRow(self, row):
+    def populateFromRow(self, continuousSetRecord):
         """
         Populates the instance variables of this ContinuousSet from the
         specified DB row.
         """
-        self._filePath = row[b'dataUrl']
+        self._filePath = continuousSetRecord.dataurl
+        self.setAttributesJson(continuousSetRecord.attributes)
 
     def getDataUrl(self):
         """

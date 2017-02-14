@@ -797,7 +797,7 @@ class SqlDataRepository(AbstractDataRepository):
         """
         Removes the specified continuousSet from this repository.
         """
-        q = m.continuousSet.delete().where(
+        q = m.ContinuousSet.delete().where(
             m.ContinuousSet.id == continuousSet.getId())
         q.execute()
 
@@ -1099,7 +1099,6 @@ class SqlDataRepository(AbstractDataRepository):
                 id=continuousSet.getId(),
                 datasetid=continuousSet.getParentContainer().getId(),
                 referencesetid=continuousSet.getReferenceSet().getId(),
-                ontologyid=continuousSet.getOntology().getId(),
                 name=continuousSet.getLocalId(),
                 dataurl=continuousSet.getDataUrl(),
                 attributes=json.dumps(continuousSet.getAttributes()))
@@ -1114,8 +1113,6 @@ class SqlDataRepository(AbstractDataRepository):
             continuousSet.setReferenceSet(
                 self.getReferenceSet(
                     continuousSetRecord.referencesetid.id))
-            continuousSet.setOntology(
-                self.getOntology(continuousSetRecord.ontologyid.id))
             continuousSet.populateFromRow(continuousSetRecord)
             assert continuousSet.getId() == continuousSetRecord.id
             dataset.addContinuousSet(continuousSet)
