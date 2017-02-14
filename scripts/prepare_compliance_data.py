@@ -262,7 +262,7 @@ class ComplianceDataMunger(object):
 
         # Continuous data
         continuousFile = ("wgEncodeCaltechRnaSeqNhekR1x75dTh1014Ilna"
-                         "MinusSignalRep1.bigWig")
+                          "MinusSignalRep1.bigWig")
         continuousFileSrc = os.path.join(
                             self.inputDirectory, continuousFile)
         continuousFileDest = os.path.join(

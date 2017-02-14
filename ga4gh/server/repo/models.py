@@ -148,6 +148,7 @@ class Featureset(BaseModel):
             (('datasetid', 'name'), True),
         )
 
+
 class ContinuousSet(BaseModel):
     dataurl = pw.TextField(db_column='dataUrl')
     datasetid = pw.ForeignKeyField(
@@ -167,6 +168,7 @@ class ContinuousSet(BaseModel):
         indexes = (
             (('datasetid', 'name'), True),
         )
+
 
 class Individual(BaseModel):
     created = pw.TextField()
