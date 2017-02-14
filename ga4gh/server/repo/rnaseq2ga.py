@@ -34,7 +34,7 @@ class RnaSqliteStore(object):
                        programs TEXT,
                        biosample_id TEXT)''')
         self._cursor.execute('''CREATE TABLE Expression (
-                       id INTEGER PRIMARY KEY AUTOINCREMENT,
+                       id INTEGER,
                        rna_quantification_id TEXT,
                        name TEXT,
                        feature_id TEXT,
@@ -44,7 +44,8 @@ class RnaSqliteStore(object):
                        score REAL,
                        units INTEGER,
                        conf_low REAL,
-                       conf_hi REAL)''')
+                       conf_hi REAL,
+                       PRIMARY KEY (id, rna_quantification_Id))''')
         self._dbConn.commit()
 
     def addRNAQuantification(self, datafields):
@@ -77,14 +78,26 @@ class RnaSqliteStore(object):
 
     def batchAddExpression(self):
         if len(self._expressionValueList) > 0:
-            sql = '''INSERT INTO Expression
-                     (rna_quantification_id, name, feature_id,
-                      expression, is_normalized, raw_read_count, score,
-                      units, conf_low, conf_hi)
-                     VALUES (?,?,?,?,?,?,?,?,?,?)'''
+            sql = "INSERT INTO Expression VALUES (?,?,?,?,?,?,?,?,?,?,?)"
             self._cursor.executemany(sql, self._expressionValueList)
             self._dbConn.commit()
             self._expressionValueList = []
+
+    def createIndices(self):
+        """
+        Index columns that are queried. The expression index can
+        take a long time.
+        """
+
+        sql = '''CREATE INDEX feature_id_index 
+                 ON Expression (feature_id)'''
+        self._cursor.execute(sql)
+        self._dbConn.commit()
+
+        sql = '''CREATE INDEX expression_index
+                 ON Expression (expression)'''
+        self._cursor.execute(sql)
+        self._dbConn.commit()
 
 
 class AbstractWriter(object):
@@ -146,6 +159,7 @@ class AbstractWriter(object):
             confColLowNum = self.setColNum(header, self._confColLow, -1)
             confColHiNum = self.setColNum(header, self._confColHi, -1)
             featureColNum = self.setColNum(header, self._featureCol)
+            expressionId = 0
             for expression in quantificationReader:
                 expressionLevel = expression[expressionLevelColNum]
                 name = expression[nameColNum]
@@ -171,11 +185,12 @@ class AbstractWriter(object):
                                 break
                         else:
                             break
-                datafields = (rnaQuantificationId, name,
+                datafields = (expressionId, rnaQuantificationId, name,
                               featureId, expressionLevel, isNormalized,
                               rawCount, score, units, confidenceLow,
                               confidenceHi)
                 self._db.addExpression(datafields)
+                expressionId += 1
             self._db.batchAddExpression()
 
 
