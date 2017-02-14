@@ -186,16 +186,16 @@ class RnaQuantificationTest(datadriven.DataDrivenTest):
         Test ingest of rsem data.
         """
         tempDir = tempfile.mkdtemp(prefix="ga4gh_rna_quant",
-                                         dir=tempfile.gettempdir())
+                                   dir=tempfile.gettempdir())
         dbName = os.path.join(tempDir, "rnaQuantDB")
         storeDb = rnaseq2ga.RnaSqliteStore(dbName)
         storeDb.createTables()
 
-        testTsvFile = os.path.join(paths.testDataDir, 
+        testTsvFile = os.path.join(
+                            paths.testDataDir,
                             "datasets/dataset1/rnaQuant/rsem_test_data.tsv")
         rnaQuantId = "rqsId"
-        rnaseq2ga.rnaseq2ga( testTsvFile, dbName, rnaQuantId,
-                             'rsem', featureType="gene")
+        rnaseq2ga.rnaseq2ga(testTsvFile, dbName, rnaQuantId,
+                            'rsem', featureType="gene")
 
         shutil.rmtree(tempDir)
-

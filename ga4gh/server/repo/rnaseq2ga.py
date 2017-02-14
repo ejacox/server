@@ -89,7 +89,7 @@ class RnaSqliteStore(object):
         take a long time.
         """
 
-        sql = '''CREATE INDEX feature_id_index 
+        sql = '''CREATE INDEX feature_id_index
                  ON Expression (feature_id)'''
         self._cursor.execute(sql)
         self._dbConn.commit()
