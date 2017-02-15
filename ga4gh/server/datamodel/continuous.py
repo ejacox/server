@@ -191,6 +191,8 @@ class BigWigDataSource:
 
     def __init__(self, sourceFile):
         self._sourceFile = sourceFile
+        self._INCREMENT = 10000  # max results per bw query
+        self._MAX_VALUES = 1000  # max values length
 
     def checkReference(self, reference):
         """
@@ -232,23 +234,29 @@ class BigWigDataSource:
                 reference, start, end)
 
         data = protocol.Continuous()
-        data.start = start
-        startNan = True
-        skipNanCount = 0
-        for val in bw.values(reference, start, end):
-            if math.isnan(val):
-                skipNanCount += 1
-            else:
-                if startNan:
-                    data.start += skipNanCount
-                    startNan = False
-                    skipNanCount = 0
-                for i in range(skipNanCount):
-                    data.values.append(float('NaN'))
-                skipNanCount = 0
-                data.values.append(val)
+        curStart = start
+        curEnd = curStart + self._INCREMENT
+        while curStart < end:
+            if curEnd > end:
+                curEnd = end
+            for i, val in enumerate(bw.values(reference, curStart, curEnd)):
+                if not math.isnan(val):
+                    if len(data.values) == 0:
+                        data.start = curStart + i
+                    data.values.append(val)
+                    if len(data.values) == self._MAX_VALUES:
+                        yield data
+                        data = protocol.Continuous()
+                elif len(data.values) > 0:
+                    # data.values.append(float('NaN'))
+                    yield data
+                    data = protocol.Continuous()
+            curStart = curEnd
+            curEnd = curStart + self._INCREMENT
+
         bw.close()
-        return data
+        if len(data.values) > 0:
+            yield data
 
     def readValuesBigWigToWig(self, reference, start, end):
         """
@@ -294,7 +302,8 @@ class BigWigDataSource:
 
     def bigWigToProtocol(self, reference, start, end):
         # return self.readValuesBigWigToWig(reference, start, end)
-        return self.readValuesPyBigWig(reference, start, end)
+        for continuousObj in self.readValuesPyBigWig(reference, start, end):
+            yield continuousObj
 
 
 class AbstractContinuousSet(datamodel.DatamodelObject):
@@ -381,9 +390,9 @@ class FileContinuousSet(AbstractContinuousSet):
         :return: yields a protocol.Continuous at a time
         """
         bigWigReader = BigWigDataSource(self._filePath)
-        continuousObject = bigWigReader.bigWigToProtocol(
-                                referenceName, start, end)
-        yield continuousObject
+        for continuousObj in bigWigReader.bigWigToProtocol(
+                                            referenceName, start, end):
+            yield continuousObj
 
 
 class SimulatedContinuousSet(AbstractContinuousSet):

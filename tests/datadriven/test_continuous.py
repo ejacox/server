@@ -7,6 +7,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import unittest
+import math
 
 from nose.tools import raises
 
@@ -47,33 +48,54 @@ class TestContinuous(unittest.TestCase):
         self.assertEqual(obj.values[300], 800)
         self.assertEqual(len(obj.values), 302)
 
+    def getTuples(self, generator):
+        """
+        Convert a generator of continuous objects into tuples of
+        (position,value).
+        """
+        tuples = []
+        for obj in generator:
+            for i, value in enumerate(obj.values):
+                if not math.isnan(value):
+                    tuples.append((obj.start+i, value))
+        return tuples
+
     def testReadBigWig(self):
         continuousObj = continuous.BigWigDataSource(self._bigWigFile)
-        obj = continuousObj.bigWigToProtocol("chr19", 49305897, 49306090)
-        self.assertEqual(obj.start, 49305900)
-        self.assertEqual(obj.values[0], 20.0)
-        self.assertEqual(obj.values[183], 17.5)
-        self.assertEqual(len(obj.values), 185)
+        generator = continuousObj.bigWigToProtocol("chr19", 49305897, 49306090)
+        tuples = self.getTuples(generator)
+        self.assertEqual(tuples[0], (49305900, 20.0))
+        self.assertEqual(tuples[4], (49305904, 20.0))
+        self.assertEqual(tuples[5], (49306080, 17.5))
+        self.assertEqual(tuples[9], (49306084, 17.5))
+        self.assertEqual(len(tuples), 10)
 
     def testReadBigWigAllNan(self):
         continuousObj = continuous.BigWigDataSource(self._bigWigFile)
-        obj = continuousObj.bigWigToProtocol("chr19", 49305927, 49305997)
-        self.assertEqual(len(obj.values), 0)
+        generator = continuousObj.bigWigToProtocol(
+                                        "chr19", 49305927, 49305997)
+        tuples = self.getTuples(generator)
+        self.assertEqual(len(tuples), 0)
 
     @raises(exceptions.ReferenceRangeErrorException)
     def testReadBigWigInvalidRange(self):
         continuousObj = continuous.BigWigDataSource(self._bigWigFile)
-        continuousObj.bigWigToProtocol("chr19", 493059030, 49305934)
+        generator = continuousObj.bigWigToProtocol(
+                                        "chr19", 493059030, 49305934)
+        next(generator)
 
     def testReadBigWigOutsideReferenceRange(self):
         continuousObj = continuous.BigWigDataSource(self._bigWigFile)
-        obj = continuousObj.bigWigToProtocol("chr19", 49306897, 493059304)
-        self.assertEqual(len(obj.values), 5)
+        generator = continuousObj.bigWigToProtocol(
+                                    "chr19", 49306897, 493059304)
+        tuples = self.getTuples(generator)
+        self.assertEqual(len(tuples), 5)
 
     def testReadBigWigNegativeReferenceRange(self):
         continuousObj = continuous.BigWigDataSource(self._bigWigFile)
-        obj = continuousObj.bigWigToProtocol("chr19", -1, 5)
-        self.assertEqual(len(obj.values), 0)
+        generator = continuousObj.bigWigToProtocol("chr19", -1, 5)
+        tuples = self.getTuples(generator)
+        self.assertEqual(len(tuples), 0)
 
     @raises(exceptions.ReferenceNameNotFoundException)
     def testReadBigWigChromsomeException(self):
@@ -81,4 +103,6 @@ class TestContinuous(unittest.TestCase):
         Test for catching bad chromosome names.
         """
         continuousObj = continuous.BigWigDataSource(self._bigWigFile)
-        continuousObj.bigWigToProtocol("chr&19", 49305602, 49308000)
+        generator = continuousObj.bigWigToProtocol(
+                                            "chr&19", 49305602, 49308000)
+        next(generator)
