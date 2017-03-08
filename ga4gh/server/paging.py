@@ -378,7 +378,7 @@ class ExpressionLevelsIterator(SequenceIterator):
     def _search(self):
         iterator = list(self._rnaQuant.getExpressionLevels(
             threshold=self._request.threshold,
-            featureIds=self._request.feature_ids,
+            names=self._request.names,
             startIndex=self._startIndex,
             maxResults=self._maxResults))
         return iterator
@@ -448,3 +448,28 @@ class ContinuousIterator(SequenceIterator):
 
     def _prepare(self, obj):
         return obj
+
+
+class PeerIterator(SequenceIterator):
+    """
+    Iterates through peers
+    """
+    def __init__(self, request, dataRepo):
+        self._dataRepo = dataRepo
+        super(PeerIterator, self).__init__(request)
+
+    def _initialize(self):
+        if self._request.page_token != '':
+            self._startIndex = int(self._request.page_token)
+        else:
+            self._startIndex = 0
+        self._maxResults = self._request.page_size
+
+    def _search(self):
+        iterator = self._dataRepo.getPeers(
+            offset=int(self._startIndex),
+            limit=self._maxResults)
+        return iterator
+
+    def _prepare(self, obj):
+        return obj.toProtocolElement()
