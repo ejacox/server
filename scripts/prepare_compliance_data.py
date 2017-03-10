@@ -13,7 +13,7 @@ import os
 import shutil
 import json
 import pysam
-import generate_gff3_db
+import generate_feature_db
 import tempfile
 import zipfile
 import glob
@@ -251,7 +251,7 @@ class ComplianceDataMunger(object):
         seqAnnFile = "brca1_gencodev19.gff3"
         seqAnnSrc = os.path.join(self.inputDirectory, seqAnnFile)
         seqAnnDest = os.path.join(self.outputDirectory, "gencodev19.db")
-        dbgen = generate_gff3_db.Gff32Db(seqAnnSrc, seqAnnDest)
+        dbgen = generate_feature_db.file2Db(seqAnnSrc, seqAnnDest, 'gff3')
         dbgen.run()
         gencode = sequence_annotations.Gff3DbFeatureSet(dataset, "gencodev19")
         gencode.setOntology(sequenceOntology)
