@@ -21,6 +21,7 @@ import ga4gh.schemas.pb as pb
 import ga4gh.schemas.protocol as protocol
 
 #TODO
+# - should this be one level up with GFF3?
 #1. write bed parser and create bed parser test file
 #1a. Find several example files (merge oddities for a test file)
 #2. do read from bigBed 
@@ -97,21 +98,68 @@ class BedParser(object):
         else:
             return open(self._fileName)
 
-    def _addBlocks(self, blockCount, blockSizesStr, blockStartsStr, 
+    def _createBlock(self, feature, featureType, start, end):
+        """
+        Add a single block, linking with parent feature.
+        """
+        attributes = dict()
+        childFeature = gff3.Feature(feature.refName, feature.source, 
+                                    featureType, start, end,
+                                    feature.score, feature.strand, 
+                                    feature.strand, attributes)
+        childFeature.parents.add(feature) 
+        feature.children.add(childFeature)
+        self._features.add(childFeature)
+
+    def _addBlock(self, feature, start, end, thickStart, thickEnd):
+        """
+        Parse a single block. Split the block if the thickness
+        occurs in the middle of the block.
+        """
+        # Check for UTR, splitting block if necessary.
+        featureType = self._blockType
+        if thickStart > start:
+            if strand == '-':
+                featureType = self._fivePrimeType
+            else:
+                featureType = self._threePrimeType
+            if thickStart < end:
+                self._addBlock(feature, featureType, start, end)
+                featureType = self._blockType
+        if thickEnd > end:
+            if strand == '-':
+                featureType = self._threePrimeType
+            else:
+                featureType = self._fivePrimeType
+            if thickEnd < start:
+                self._addBlock(feature, featureType, start, end)
+                featureType = self._blockType
+        self._addBlock(feature, featureType, start, end)
+
+    def _parseBlocks(self, blockCount, blockSizesStr, blockStartsStr, 
                    thickStart, thickEnd, feature):
         """
         Parse bed blocks and add children features for each block
         """
+        blockSizes = blockSizesStr.split(',')
+        if blockSizes.length != blockCount:
+            raise ValidationException(
+                "Number of block sizes doesn't match block count"
+                self._fileName, self._lineNumber)
         blockStarts = blockStartsStr.split(',')
         if blockStarts.length != blockCount:
             raise ValidationException(
                 "Number of block starts doesn't match block count"
                 self._fileName, self._lineNumber)
-        blockEnds = blockEndsStr.split(',')
-        if blockEnds.length != blockCount:
-            raise ValidationException(
-                "Number of block ends doesn't match block count"
-                self._fileName, self._lineNumber)
+        if blockCount > 1:
+            if blockStarts[0] != feature.start:
+                raise ValidationException(
+                    "First block start doesn't match feature start",
+                    self._fileName, self._lineNumber)
+            if blockStarts[-1] + blockSizes[-1] != feature.end:
+                raise ValidationException(
+                    "Last block end doesn't match feature end",
+                    self._fileName, self._lineNumber)
         for i in range(0, blockCount):
             try:
                 start = feature.start + int(blockStarts[i])
@@ -120,16 +168,8 @@ class BedParser(object):
                 raise ValidationException(
                     "Block start or size is not an integer",
                     self._fileName, self._lineNumber)
-#thickness
+            self._addBlock(feature, start, end, thickStart, thickEnd)
 
-            attributes = dict()
-            childFeature = gff3.Feature(feature.refName, feature.source, 
-                                        self._blockType, start, end,
-                                        feature.score, feature.strand, 
-                                        feature.strand, attributes)
-            childFeature.parents.add(feature) 
-            feature.children.add(childFeature)
-            self._features.add(childFeature)
 
     def _parseLine(self, line):
         """ 
@@ -161,7 +201,7 @@ class BedParser(object):
         feature = gff3.Feature(refName, source, self._type, start, end,
                                score, strand, frame, attributes)
         if blockCount:
-            self._addBlocks(blockCount, blockSizesStr, blockStartsStr,
+            self._parseBlocks(blockCount, blockSizesStr, blockStartsStr,
                             thickStart, thickEnd, feature)
         self._features.add(feature)
 
